@@ -1,0 +1,25 @@
+{
+  "name": "vonage-video-audio-processor-google-doc",
+  "version": "1.0.0",
+  "description": "Example on how to push transcription inside a Google Doc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vonage",
+    "video",
+    "transcript",
+    "audio"
+  ],
+  "author": "Enrico Portolan",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "googleapis": "^123.0.0",
+    "opentok": "^2.16.0",
+    "socket.io": "^4.7.2"
+  }
+}
