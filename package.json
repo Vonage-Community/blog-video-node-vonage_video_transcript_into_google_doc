@@ -4,6 +4,8 @@
   "description": "Example on how to push transcription inside a Google Doc",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,11 +17,17 @@
   "author": "Enrico Portolan",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/local-auth": "^3.0.0",
+    "@google-cloud/speech": "^6.0.1",
+    "axios": "^1.4.0",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
+    "express-ws": "^5.0.2",
     "googleapis": "^123.0.0",
-    "opentok": "^2.16.0",
-    "socket.io": "^4.7.2"
+    "opentok": "^2.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

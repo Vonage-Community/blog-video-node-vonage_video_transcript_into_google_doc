@@ -9,11 +9,12 @@ if (!apiKey || !apiSecret) {
     "Missing config values for env params OT_API_KEY and OT_API_SECRET"
   );
 }
-let sessionId;
+
+const app = require("express")();
 
 const opentok = new OpenTok(apiKey, apiSecret);
 
-const createSessionandToken = (session, role) => {
+const createSessionandToken = (roomName, role) => {
   return new Promise((resolve, reject) => {
     opentok.createSession({ mediaMode: "routed" }, function (error, session) {
       if (error) {
@@ -23,7 +24,7 @@ const createSessionandToken = (session, role) => {
         const token = role
           ? opentok.generateToken(sessionId, { data: role })
           : opentok.generateToken(sessionId);
-        resolve({ sessionId: sessionId, token: token });
+        resolve({ sessionId: sessionId, token: token, apiKey });
         //console.log("Session ID: " + sessionId);
       }
     });
@@ -82,10 +83,6 @@ const generateToken = (sessionId, role) => {
   return { token: token, apiKey: apiKey };
 };
 
-const initiateArchiving = async (sessionId) => {
-  const archive = await createArchive(sessionId);
-  return archive;
-};
 const getCredentials = async (session = null, role) => {
   console.log("gen creds for " + role);
   const data = await createSessionandToken(session, role);
@@ -94,47 +91,23 @@ const getCredentials = async (session = null, role) => {
   return { sessionId: sessionId, token: token, apiKey: apiKey };
 };
 
-const startTranscription = async (streamId, sessionId) => {
+const startTranscription = async (streamId, sessionId, username) => {
   try {
-    // const { token } = generateToken(sessionId, "publisher");
-    let socketUriForStream = socketURI + "/" + stream_id;
+    const { token } = generateToken(sessionId, "publisher");
+    let socketUriForStream = process.env.NGROK_DOMAIN + "/socket/" + streamId;
     opentok.websocketConnect(
       sessionId,
       token,
       socketUriForStream,
-      { streams: [stream_id] },
+      { streams: [streamId], headers: { username } },
       function (error, socket) {
         if (error) {
           console.log("Error:", error.message);
         } else {
-          console.log("OpenTok Socket websocket connected");
+          console.log("OpenTok Socket websocket connected", socket);
         }
       }
     );
-    // const { token } = generateToken(sessionId, "publisher");
-
-    // const data = JSON.stringify({
-    //   sessionId: sessionId,
-    //   token: token,
-    //   websocket: {
-    //     uri: `${process.env.websocket_url}/socket`,
-    //     streams: [streamId],
-    //     headers: {
-    //       from: streamId,
-    //     },
-    //   },
-    // });
-    // const config = {
-    //   method: "post",
-    //   url: `https://api.opentok.com/v2/project/${process.env.VIDEO_API_API_KEY}/connect`,
-    //   headers: {
-    //     "X-OPENTOK-AUTH": await generateRestToken(),
-    //     "Content-Type": "application/json",
-    //   },
-    //   data: data,
-    // };
-    // const response = await axios(config);
-    // console.log(response.data);
     return response.data;
   } catch (e) {
     console.log(e?.response?.data);
@@ -142,7 +115,29 @@ const startTranscription = async (streamId, sessionId) => {
   }
 };
 
+const forceDisconnect = async (sessionId, connectionId) => {
+  const config = {
+    method: "delete",
+    url: `https://api.opentok.com/v2/project/${apiKey}/session/${sessionId}/connection/${connectionId}`,
+    headers: {
+      "X-OPENTOK-AUTH": await generateRestToken(),
+      "Content-Type": "application/json",
+    },
+  };
+  console.log(config);
+
+  try {
+    const response = await axios(config);
+    return response.data;
+  } catch (e) {
+    console.log(`there was an error` + e);
+    return e;
+  }
+};
+
 module.exports = {
   getCredentials,
   generateToken,
+  startTranscription,
+  createSessionandToken,
 };
