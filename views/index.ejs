@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vonage Audio Connector Example</title>
+    <!-- Adding Bootstrap CSS CDN -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <style>
       html,
       body {
@@ -12,31 +18,41 @@
         padding: 0;
         overflow: hidden;
       }
-      /* Flex container for the streams */
+
       .streams {
-        display: flex;
-        flex-wrap: wrap; /* Wrap items if more than can fit on one line */
-        gap: 10px; /* Gap between streams */
-        justify-content: space-between; /* Distribute streams evenly */
+        gap: 10px;
       }
+
       .stream {
-        flex: 1; /* This makes each stream flex to take up as much space as possible */
-        min-width: calc(
-          50% - 5px
-        ); /* Assuming we want a minimum of 2 streams side-by-side, considering the gap */
+        min-width: calc(50% - 5px);
         height: 300px;
         border: 1px solid #ccc;
       }
     </style>
   </head>
-  <body>
-    <div>
-      <label for="username">Username: </label>
-      <input type="text" id="username" name="username" />
-      <button onclick="joinRoom()">Join</button>
+
+  <body class="container mt-4">
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Username:</span>
+      </div>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        class="form-control"
+        placeholder="Enter your username"
+      />
+      <div class="input-group-append">
+        <button onclick="joinRoom()" class="btn btn-primary">Join</button>
+      </div>
     </div>
 
-    <div class="streams">
+    <div
+      id="stream-container"
+      class="streams d-flex flex-row"
+      style="height: 400px"
+    >
       <!-- Placeholder divs for the streams. You can replace these with actual stream containers or add more as needed. -->
     </div>
 
@@ -44,6 +60,7 @@
       id="start-transcribe"
       style="display: none"
       onclick="startTranscribe()"
+      class="btn btn-success mt-3"
     >
       Start Transcription
     </button>
@@ -61,7 +78,7 @@
         var sessionId = "<%= sessionId %>";
         var token = "<%= token %>";
         var apiKey = "<%= apiKey %>";
-        publisher = OT.initPublisher("streams", {
+        publisher = OT.initPublisher("stream-container", {
           insertMode: "append",
           width: "100%",
           height: "100%",
@@ -76,12 +93,22 @@
               // This is called when a new stream is created in the session
               // Subscribe to the stream that caused this event, and place it into the DOM.
               console.log("New stream in the session: ", event.stream);
-              session.subscribe(event.stream, "streams", function (error) {
-                if (error) {
-                  console.error("Failed to subscribe:", error);
+              session.subscribe(
+                event.stream,
+                "stream-container",
+                {
+                  insertMode: "append",
+                  insertMode: "append",
+                  width: "100%",
+                  height: "100%",
+                },
+                function (error) {
+                  if (error) {
+                    console.error("Failed to subscribe:", error);
+                  }
+                  console.log("Subscribed to the stream.");
                 }
-                console.log("Subscribed to the stream.");
-              });
+              );
             });
             // Here, you would also subscribe to streams if any are present
             session.publish(publisher, function (error) {

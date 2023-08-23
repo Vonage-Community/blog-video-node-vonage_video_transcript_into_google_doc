@@ -45,10 +45,6 @@ class GoogleSTT {
 
     this.stream.on("error", (err) => {
       console.error(err);
-      // this.tryEndAudioStream();
-      // if (this.errorCallback) {
-      //   this.errorCallback(err);
-      // }
     });
 
     this.stream.on("finish", (res) => {});
