@@ -27,3 +27,7 @@ This project demonstrates the integration of the Vonage Audio Connector with Goo
 2. Run npm install
 3. Open the tunnel with ngrok
 4. Fill the .env
+
+## Architecture
+
+![](./audio_connector_architecture.png)
